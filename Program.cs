@@ -59,6 +59,7 @@ class Program
                 Console.WriteLine();
                 Console.WriteLine("💡 Troubleshooting:");
                 Console.WriteLine("   • Ensure appsettings.json exists and contains an 'AiSdk' section");
+                Console.WriteLine("   • Copy configuration from appsettings.example.json if needed");
                 Console.WriteLine("   • Set 'AiSdk:DefaultProvider' to one of: 'OpenAI', 'Anthropic', 'Google', 'HuggingFace'");
                 Console.WriteLine("   • Ensure required environment variables are set (e.g., OPENAI_API_KEY)");
                 Console.WriteLine();
@@ -88,6 +89,7 @@ class Program
                 Console.WriteLine();
                 Console.WriteLine("💡 Troubleshooting:");
                 Console.WriteLine("   • Check your appsettings.json for the 'AiSdk' section");
+                Console.WriteLine("   • Copy configuration from appsettings.example.json if the section is missing");
                 Console.WriteLine("   • Ensure 'AiSdk:DefaultProvider' is set to: 'OpenAI', 'Anthropic', 'Google', or 'HuggingFace'");
                 Console.WriteLine("   • Verify that the specified provider is properly registered and configured");
                 Console.WriteLine("   • Check that required environment variables are set (e.g., OPENAI_API_KEY)");
