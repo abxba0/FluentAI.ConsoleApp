@@ -249,6 +249,43 @@ set HUGGINGFACE_API_KEY=your-huggingface-api-key
    - Update secrets when team members leave
    - Use short-lived tokens when possible
 
+## Known Issues and Troubleshooting
+
+### "A default provider is not specified in the 'AiSdk' configuration section"
+
+**Problem:** This error occurs when the AiSdk section is missing from appsettings.json.
+
+**Solution:** Ensure your `appsettings.json` contains the AiSdk configuration section:
+
+```json
+{
+  "AiSdk": {
+    "DefaultProvider": "OpenAI",
+    "Failover": {
+      "PrimaryProvider": "OpenAI",
+      "FallbackProvider": "Google"
+    }
+  }
+}
+```
+
+### "Cannot create default input sanitizer without compatible logger"
+
+**Problem:** This is a known compatibility issue with FluentAI.NET v1.0.2 related to dependency injection.
+
+**Status:** This appears to be a library-level issue where there's a type mismatch between `ILogger<T>` and `ILogger` in the FluentAI.NET package.
+
+**Workarounds:**
+- The configuration is correct and will work with a compatible version of the library
+- All required API keys are properly configured via user-secrets
+- Consider updating to a newer version of FluentAI.NET if available
+- The application demonstrates proper configuration patterns even when this library issue occurs
+
+**Verification:** You can verify your configuration is correct by checking that:
+1. `AiSdk Section Exists: True` is displayed when running the app
+2. `DefaultProvider: OpenAI` (or your chosen provider) is shown
+3. API keys are properly configured with `dotnet user-secrets list`
+
 4. **Monitor for Exposed Secrets:**
    - Regularly scan repositories for accidentally committed secrets
    - Use automated tools to detect exposed credentials

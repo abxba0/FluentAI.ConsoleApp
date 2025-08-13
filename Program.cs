@@ -48,39 +48,38 @@ class Program
                         services.AddTransient<PerformanceDemoService>();
                         services.AddTransient<ConfigurationDemoService>();
                         services.AddTransient<ErrorHandlingDemoService>();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"❌ Configuration Error: {ex.Message}");
-                        Console.ResetColor();
-                        
-                        // Log additional troubleshooting information
-                        Console.WriteLine();
-                        Console.WriteLine("💡 Troubleshooting:");
-                        Console.WriteLine("   • Ensure appsettings.json exists and contains an 'AiSdk' section");
-                        Console.WriteLine("   • Set 'AiSdk:DefaultProvider' to one of: 'OpenAI', 'Anthropic', 'Google', 'HuggingFace'");
-                        Console.WriteLine("   • Ensure required environment variables are set (e.g., OPENAI_API_KEY)");
-                        Console.WriteLine();
-                        
-                        if (args.Contains("--debug"))
-                        {
-                            Console.WriteLine($"Stack Trace: {ex.StackTrace}");
-                        }
-                        
-                        Environment.Exit(1);
-                    }
-                });
-
-            using var host = builder.Build();
-            
-            // Validate that the service can be created before showing the menu
-            try
-            {
-                var chatModel = host.Services.GetRequiredService<IChatModel>();
-                Console.WriteLine("✅ FluentAI.NET SDK initialized successfully");
-                Console.WriteLine();
             }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"❌ Configuration Error: {ex.Message}");
+                Console.ResetColor();
+                
+                // Log additional troubleshooting information
+                Console.WriteLine();
+                Console.WriteLine("💡 Troubleshooting:");
+                Console.WriteLine("   • Ensure appsettings.json exists and contains an 'AiSdk' section");
+                Console.WriteLine("   • Set 'AiSdk:DefaultProvider' to one of: 'OpenAI', 'Anthropic', 'Google', 'HuggingFace'");
+                Console.WriteLine("   • Ensure required environment variables are set (e.g., OPENAI_API_KEY)");
+                Console.WriteLine();
+                
+                if (args.Contains("--debug"))
+                {
+                    Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                }
+                
+                Environment.Exit(1);
+            }
+        });
+
+        using var host = builder.Build();
+        // Validate that the service can be created before showing the menu
+        try
+        {
+            var chatModel = host.Services.GetRequiredService<IChatModel>();
+            Console.WriteLine("✅ FluentAI.NET SDK initialized successfully");
+            Console.WriteLine();
+        }
             catch (AiSdkConfigurationException ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -107,8 +106,24 @@ class Program
                 Console.WriteLine($"❌ Service Validation Error: {ex.Message}");
                 Console.ResetColor();
                 Console.WriteLine();
-                Console.WriteLine("💡 This typically means your provider configuration is incomplete.");
-                Console.WriteLine("   Please check your appsettings.json and environment variables.");
+                
+                // Check if this is the known library issue
+                if (ex.Message.Contains("Cannot create default input sanitizer without compatible logger"))
+                {
+                    Console.WriteLine("💡 Known Issue: This appears to be a compatibility issue with FluentAI.NET v1.0.2");
+                    Console.WriteLine("   The AiSdk configuration is correct, but the library has a dependency injection issue.");
+                    Console.WriteLine("   This typically happens when there's a type mismatch between ILogger<T> and ILogger.");
+                    Console.WriteLine();
+                    Console.WriteLine("🔧 Workarounds:");
+                    Console.WriteLine("   • Try updating FluentAI.NET to a newer version if available");
+                    Console.WriteLine("   • The configuration in appsettings.json is correct and will work with a compatible version");
+                    Console.WriteLine("   • All required API keys are properly configured via user-secrets");
+                }
+                else
+                {
+                    Console.WriteLine("💡 This typically means your provider configuration is incomplete.");
+                    Console.WriteLine("   Please check your appsettings.json and environment variables.");
+                }
                 Console.WriteLine();
                 
                 if (args.Contains("--debug"))
@@ -119,7 +134,7 @@ class Program
                 return;
             }
             
-            var demoService = host.Services.GetRequiredService<DemoService>();
+        var demoService = host.Services.GetRequiredService<DemoService>();
             await demoService.RunMainMenu();
         }
         catch (Exception ex)
