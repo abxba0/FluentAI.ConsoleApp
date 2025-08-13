@@ -1,0 +1,45 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "FluentAI": "Debug",
+      "FluentAI.Examples.ConsoleApp": "Debug"
+    }
+  },
+  "AiSdk": {
+    "DefaultProvider": "OpenAI",
+    "Failover": {
+      "PrimaryProvider": "OpenAI",
+      "FallbackProvider": "Google"
+    }
+  },
+
+  "OpenAI": {
+    "Model": "gpt-4",
+    "MaxTokens": 500,
+    "RequestTimeout": "00:01:30",
+    "Temperature": 0.7,
+    "PermitLimit": 10,
+    "WindowInSeconds": 60
+  },
+  "Anthropic": {
+    "Model": "claude-3-haiku-20240307",
+    "MaxTokens": 500,
+    "RequestTimeout": "00:01:30",
+    "Temperature": 0.7,
+    "PermitLimit": 8,
+    "WindowInSeconds": 60
+  },
+  "Google": {
+    "Model": "gemini-pro",
+    "MaxTokens": 500,
+    "RequestTimeout": "00:01:30",
+    "Temperature": 0.7
+  },
+  "HuggingFace": {
+    "ModelId": "microsoft/DialoGPT-large",
+    "MaxTokens": 500,
+    "RequestTimeout": "00:01:30",
+    "Temperature": 0.7
+  }
+}
