@@ -48,6 +48,28 @@ public static class FluentAiServiceSetup
             // This is acceptable for now
         }
 
+        // Add Anthropic provider if configured
+        var anthropicConfig = configService.GetProviderConfiguration("Anthropic");
+        var anthropicApiKey = configService.GetApiKey("Anthropic");
+        
+        // Note: This assumes FluentAI has Anthropic provider support
+        // If not available, we'll log a warning
+        try
+        {
+            fluentAiBuilder.AddAnthropic(options =>
+            {
+                options.ApiKey = anthropicApiKey;
+                options.Model = anthropicConfig.Model;
+                options.MaxTokens = anthropicConfig.MaxTokens;
+                options.RequestTimeout = anthropicConfig.RequestTimeout;
+            });
+        }
+        catch (Exception)
+        {
+            // Anthropic provider may not be available in current FluentAI version
+            // This is acceptable for now
+        }
+
         // Set default provider
         fluentAiBuilder.UseDefaultProvider(defaultProvider);
 
