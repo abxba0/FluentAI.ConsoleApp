@@ -41,3 +41,6 @@ bld/
 # Temporary files
 **/tmp/
 **/temp/
+
+# Test configuration files (for testing only)
+appsettings.legacy.json

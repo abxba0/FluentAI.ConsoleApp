@@ -1,5 +1,6 @@
 ﻿using FluentAI.ConsoleApp.Configuration;
 using FluentAI.ConsoleApp.Services;
+using FluentAI.ConsoleApp.Tests;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,20 @@ class Program
 {
     static async Task Main(string[] args)
     {
+        // Check for test arguments
+        if (args.Length > 0)
+        {
+            switch (args[0])
+            {
+                case "test-config":
+                    ConfigurationTest.TestConfiguration();
+                    return;
+                case "test-legacy":
+                    BackwardCompatibilityTest.TestLegacyConfiguration();
+                    return;
+            }
+        }
+
         // Build configuration
         var configuration = BuildConfiguration();
         
@@ -41,8 +56,12 @@ class Program
         // Add configuration
         services.AddSingleton(configuration);
         
-        // Add logging services
-        services.AddLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Warning));
+        // Add logging services using configuration from appsettings.json
+        services.AddLogging(builder => 
+        {
+            builder.AddConsole();
+            builder.AddConfiguration(configuration.GetSection("Logging"));
+        });
         
         // Add custom services
         services.AddSingleton<IApiKeyConfigurationService, ApiKeyConfigurationService>();
