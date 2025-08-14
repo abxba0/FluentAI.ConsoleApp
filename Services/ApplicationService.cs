@@ -27,8 +27,25 @@ public class ApplicationService : IApplicationService
         Console.WriteLine("FluentAI.NET Console Application Demo");
         Console.WriteLine("=====================================");
 
-        var apiKey = _configService.GetApiKey();
-        var model = _configService.GetModel();
+        var aiSdkConfig = _configService.GetAiSdkConfiguration();
+        var defaultProvider = _configService.GetDefaultProvider();
+        var primaryProvider = _configService.GetPrimaryProvider();
+        var fallbackProvider = _configService.GetFallbackProvider();
+
+        Console.WriteLine($"Default Provider: {defaultProvider}");
+        Console.WriteLine($"Primary Provider: {primaryProvider}");
+        Console.WriteLine($"Fallback Provider: {fallbackProvider}");
+
+        var apiKey = _configService.GetApiKey(defaultProvider);
+        var model = _configService.GetModel(defaultProvider);
+        var providerConfig = _configService.GetProviderConfiguration(defaultProvider);
+
+        Console.WriteLine($"Provider Configuration:");
+        Console.WriteLine($"- Model: {providerConfig.Model}");
+        Console.WriteLine($"- Max Tokens: {providerConfig.MaxTokens}");
+        Console.WriteLine($"- Request Timeout: {providerConfig.RequestTimeout}");
+        Console.WriteLine($"- Permit Limit: {providerConfig.PermitLimit}");
+        Console.WriteLine($"- Window In Seconds: {providerConfig.WindowInSeconds}");
 
         try
         {
@@ -36,12 +53,45 @@ public class ApplicationService : IApplicationService
             Console.WriteLine($"Using API key: {apiKey.Substring(0, Math.Min(10, apiKey.Length))}...");
             Console.WriteLine($"Using model: {model}");
 
+            // Try primary provider first
+            var success = await TryProvider(primaryProvider, "Primary");
+            
+            // If primary fails, try fallback
+            if (!success && !primaryProvider.Equals(fallbackProvider, StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine($"\nPrimary provider ({primaryProvider}) failed, trying fallback provider ({fallbackProvider})...");
+                await TryProvider(fallbackProvider, "Fallback");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"\nError occurred: {ex.Message}");
+            Console.WriteLine("\nNote: This demo requires valid API keys to work properly.");
+            Console.WriteLine("You can configure API keys in several ways:");
+            Console.WriteLine("1. Set environment variables (OPENAI_API_KEY, GOOGLE_API_KEY)");
+            Console.WriteLine("2. Use dotnet user-secrets (see README.md for details)");
+            Console.WriteLine("3. For development only: Set in appsettings.json (not recommended for production)");
+            Console.WriteLine("\nTo get API keys:");
+            Console.WriteLine("- OpenAI: https://platform.openai.com/api-keys");
+            Console.WriteLine("- Google: https://makersuite.google.com/app/apikey");
+        }
+
+        Console.WriteLine("\nPress any key to exit...");
+        Console.ReadKey();
+    }
+
+    private async Task<bool> TryProvider(string provider, string providerType)
+    {
+        try
+        {
+            Console.WriteLine($"\n=== Trying {providerType} Provider: {provider} ===");
+            
             // Get the chat model factory
             var chatModelFactory = _serviceProvider.GetRequiredService<IChatModelFactory>();
-            var chatModel = chatModelFactory.GetModel("OpenAI");
+            var chatModel = chatModelFactory.GetModel(provider);
 
             // Demonstrate simple prompt and response
-            Console.WriteLine("\nSending a simple prompt to the AI...");
+            Console.WriteLine("Sending a simple prompt to the AI...");
             var prompt = "Hello! Please introduce yourself briefly.";
             Console.WriteLine($"Prompt: {prompt}");
 
@@ -52,30 +102,20 @@ public class ApplicationService : IApplicationService
             };
 
             // Send prompt and get response
-            var requestOptions = new OpenAiRequestOptions();
+            var requestOptions = new OpenAiRequestOptions(); // This might need to be provider-specific
             var response = await chatModel.GetResponseAsync(messages, requestOptions, CancellationToken.None);
 
             Console.WriteLine($"\nAI Response: {response.Content}");
             Console.WriteLine($"Model ID: {response.ModelId}");
             Console.WriteLine($"Finish Reason: {response.FinishReason}");
             Console.WriteLine($"Token Usage: Input={response.Usage.InputTokens}, Output={response.Usage.OutputTokens}");
+            
+            return true;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"\nError occurred: {ex.Message}");
-            Console.WriteLine("\nNote: This demo requires a valid OpenAI API key to work properly.");
-            Console.WriteLine("You can configure the API key in several ways:");
-            Console.WriteLine("1. Set it in appsettings.json under Aisdk:OpenAI:ApiKey");
-            Console.WriteLine("2. Set the OPENAI_API_KEY environment variable");
-            Console.WriteLine("3. Use dotnet user-secrets (see README.md for details)");
-            Console.WriteLine("\nTo get an API key:");
-            Console.WriteLine("1. Visit https://platform.openai.com/api-keys");
-            Console.WriteLine("2. Create an account or sign in");
-            Console.WriteLine("3. Generate a new API key");
-            Console.WriteLine("4. Configure it using one of the methods above");
+            Console.WriteLine($"{providerType} provider ({provider}) failed: {ex.Message}");
+            return false;
         }
-
-        Console.WriteLine("\nPress any key to exit...");
-        Console.ReadKey();
     }
 }

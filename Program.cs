@@ -41,8 +41,12 @@ class Program
         // Add configuration
         services.AddSingleton(configuration);
         
-        // Add logging services
-        services.AddLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Warning));
+        // Add logging services using configuration from appsettings.json
+        services.AddLogging(builder => 
+        {
+            builder.AddConsole();
+            builder.AddConfiguration(configuration.GetSection("Logging"));
+        });
         
         // Add custom services
         services.AddSingleton<IApiKeyConfigurationService, ApiKeyConfigurationService>();
