@@ -40,13 +40,3 @@ public class GoogleConfiguration : ProviderConfiguration
         PermitLimit = 50;
     }
 }
-
-public class HuggingFaceConfiguration : ProviderConfiguration
-{
-    public HuggingFaceConfiguration()
-    {
-        Model = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium";
-        PermitLimit = 60;
-        MaxTokens = 1000;
-    }
-}

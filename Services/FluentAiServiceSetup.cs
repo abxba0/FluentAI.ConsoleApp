@@ -70,25 +70,6 @@ public static class FluentAiServiceSetup
             // This is acceptable for now
         }
 
-        // Add HuggingFace provider if configured
-        var huggingFaceConfig = configService.GetProviderConfiguration("HuggingFace");
-        var huggingFaceApiKey = configService.GetApiKey("HuggingFace");
-        
-        try
-        {
-            fluentAiBuilder.AddHuggingFace(options =>
-            {
-                options.ApiKey = huggingFaceApiKey;
-                options.ModelId = huggingFaceConfig.Model;
-                options.RequestTimeout = huggingFaceConfig.RequestTimeout;
-            });
-        }
-        catch (Exception)
-        {
-            // HuggingFace provider may not be available in current FluentAI version
-            // This is acceptable for now
-        }
-
         // Set default provider
         fluentAiBuilder.UseDefaultProvider(defaultProvider);
 

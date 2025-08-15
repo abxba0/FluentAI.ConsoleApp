@@ -80,8 +80,6 @@ public class ApiKeyConfigurationService : IApiKeyConfigurationService
         // Provider-specific defaults
         if (provider.Equals("OpenAI", StringComparison.OrdinalIgnoreCase))
             return "gpt-3.5-turbo";
-        else if (provider.Equals("HuggingFace", StringComparison.OrdinalIgnoreCase))
-            return "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium";
         else
             return "Gemini 2";
     }
@@ -97,10 +95,6 @@ public class ApiKeyConfigurationService : IApiKeyConfigurationService
         else if (provider.Equals("Google", StringComparison.OrdinalIgnoreCase))
         {
             config = new GoogleConfiguration();
-        }
-        else if (provider.Equals("HuggingFace", StringComparison.OrdinalIgnoreCase))
-        {
-            config = new HuggingFaceConfiguration();
         }
         else
         {

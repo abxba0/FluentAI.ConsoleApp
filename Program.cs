@@ -1,7 +1,6 @@
 ﻿using FluentAI.ConsoleApp.Configuration;
 using FluentAI.ConsoleApp.Services;
 using FluentAI.ConsoleApp.Tests;
-using FluentAI.ConsoleApp.Examples;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,9 +22,6 @@ class Program
                     return;
                 case "test-legacy":
                     BackwardCompatibilityTest.TestLegacyConfiguration();
-                    return;
-                case "huggingface-demo":
-                    HuggingFaceExample.ShowConfigurationExamples();
                     return;
             }
         }
