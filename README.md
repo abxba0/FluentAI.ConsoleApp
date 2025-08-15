@@ -8,7 +8,7 @@ A C# .NET console application demonstrating the usage of the FluentAI.NET NuGet 
 - Configuration via `appsettings.json`, environment variables, and `dotnet user-secrets`
 - Modular project structure with separation of concerns
 - FluentAI.NET SDK integration with proper dependency injection
-- **Multi-provider AI support**: OpenAI, Google Gemini, Anthropic Claude, and **HuggingFace models**
+- **Multi-provider AI support**: OpenAI, Google Gemini, and Anthropic Claude
 - Comprehensive error handling and user guidance
 - Support for multiple configuration sources with priority ordering
 - Provider failover mechanism with automatic fallback
@@ -16,7 +16,7 @@ A C# .NET console application demonstrating the usage of the FluentAI.NET NuGet 
 ## Prerequisites
 
 - .NET 8.0 or later
-- Valid API key from any supported provider (OpenAI, Google, Anthropic, HuggingFace) for actual functionality
+- Valid API key from any supported provider (OpenAI, Google, Anthropic) for actual functionality
 
 ## Setup Instructions
 
@@ -203,76 +203,6 @@ The application will:
 - **Microsoft.Extensions.Logging.Console (9.0.8)**: Console logging support
 - **.NET 8.0**: Target framework
 
-## HuggingFace Model Support
-
-This application now includes support for HuggingFace models through the existing FluentAI.NET framework. HuggingFace provides access to thousands of pre-trained models for various AI tasks.
-
-### Features
-
-- **Text Generation**: Use models like GPT-2 for creative text generation
-- **Conversational AI**: Chat with models like DialoGPT for dialogue systems
-- **Question Answering**: Get answers using models like RoBERTa
-- **Text Summarization**: Summarize content with models like BART
-
-### Configuration
-
-#### Option 1: appsettings.json
-```json
-{
-  "AiSdk": {
-    "DefaultProvider": "HuggingFace",
-    "Failover": {
-      "PrimaryProvider": "HuggingFace",
-      "FallbackProvider": "OpenAI"
-    }
-  },
-  "HuggingFace": {
-    "Model": "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium",
-    "MaxTokens": 1000,
-    "RequestTimeout": "00:02:00",
-    "PermitLimit": 60,
-    "WindowInSeconds": 60
-  }
-}
-```
-
-#### Option 2: Environment Variables
-```bash
-export HUGGINGFACE_API_KEY="your-huggingface-api-key-here"
-# or
-export HuggingFace:ApiKey="your-huggingface-api-key-here"
-```
-
-#### Option 3: User Secrets (Recommended for development)
-```bash
-dotnet user-secrets set "HUGGINGFACE_API_KEY" "your-huggingface-api-key-here"
-# or
-dotnet user-secrets set "HuggingFace:ApiKey" "your-huggingface-api-key-here"
-```
-
-### Popular HuggingFace Model URLs
-
-- **Conversational AI**: `https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium`
-- **Text Generation**: `https://api-inference.huggingface.co/models/gpt2`
-- **Question Answering**: `https://api-inference.huggingface.co/models/deepset/roberta-base-squad2`
-- **Text Summarization**: `https://api-inference.huggingface.co/models/facebook/bart-large-cnn`
-
-### Getting a HuggingFace API Key
-
-1. Visit [Hugging Face Hub](https://huggingface.co/)
-2. Create an account or sign in
-3. Go to your [API tokens page](https://huggingface.co/settings/tokens)
-4. Create a new token with appropriate permissions
-5. Configure it using one of the methods above
-
-### Running the HuggingFace Demo
-
-```bash
-dotnet run huggingface-demo
-```
-
-This command shows configuration examples and popular model URLs.
-
 ## Architecture Notes
 
 - **Separation of Concerns**: The application is structured with distinct layers for configuration, services, and application logic
@@ -291,10 +221,8 @@ This command shows configuration examples and popular model URLs.
 ## Next Steps
 
 To extend this application, you could:
-- ✅ **Add HuggingFace model support** (COMPLETED)
 - Add streaming response support
 - Implement conversation history management
 - Implement request/response validation and sanitization
 - Add configuration for model parameters (temperature, max tokens, etc.)
 - Create a more sophisticated CLI interface with commands and options
-- Add support for custom HuggingFace model endpoints
