@@ -40,7 +40,7 @@ public class ApiKeyConfigurationService : IApiKeyConfigurationService
             return apiKey;
         }
 
-        // Fallback to environment variables based on provider
+        // Fallback to environment variables or user secrets based on provider
         if (provider.Equals("OpenAI", StringComparison.OrdinalIgnoreCase))
         {
             apiKey = _configuration["OPENAI_API_KEY"] ?? _configuration["OpenAI__ApiKey"];
@@ -48,6 +48,10 @@ public class ApiKeyConfigurationService : IApiKeyConfigurationService
         else if (provider.Equals("Google", StringComparison.OrdinalIgnoreCase))
         {
             apiKey = _configuration["GOOGLE_API_KEY"] ?? _configuration["Google__ApiKey"];
+        }
+        else if (provider.Equals("Anthropic", StringComparison.OrdinalIgnoreCase))
+        {
+            apiKey = _configuration["ANTHROPIC_API_KEY"] ?? _configuration["Anthropic__ApiKey"];
         }
         
         if (!string.IsNullOrWhiteSpace(apiKey))
