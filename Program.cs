@@ -1,4 +1,5 @@
-﻿using FluentAI.ConsoleApp.Configuration;
+﻿using FluentAI.Abstractions.Security;
+using FluentAI.ConsoleApp.Configuration;
 using FluentAI.ConsoleApp.Services;
 using FluentAI.ConsoleApp.Tests;
 using Microsoft.Extensions.Configuration;
@@ -76,6 +77,9 @@ class Program
         // Add new AI assistant services
         services.AddSingleton<IConversationManager, ConversationManager>();
         services.AddSingleton<IChatSessionManager, ChatSessionManager>();
+        
+        // Add fluentai-dotnet security services
+        services.AddSingleton<IInputSanitizer, DefaultInputSanitizer>();
         services.AddSingleton<IInputValidationService, InputValidationService>();
         services.AddSingleton<IInteractiveChatService, InteractiveChatService>();
         

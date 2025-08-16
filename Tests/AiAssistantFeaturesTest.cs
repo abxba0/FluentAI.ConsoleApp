@@ -1,5 +1,7 @@
 using FluentAI.Abstractions.Models;
+using FluentAI.Abstractions.Security;
 using FluentAI.ConsoleApp.Services;
+using Microsoft.Extensions.Logging;
 
 namespace FluentAI.ConsoleApp.Tests;
 
@@ -78,7 +80,11 @@ public static class AiAssistantFeaturesTest
     {
         Console.WriteLine("=== Testing Input Validation Service ===");
         
-        var validationService = new InputValidationService();
+        // Create validation service with dependencies for testing
+        var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        var logger = loggerFactory.CreateLogger<InputValidationService>();
+        var inputSanitizer = new DefaultInputSanitizer(loggerFactory.CreateLogger<DefaultInputSanitizer>());
+        var validationService = new InputValidationService(inputSanitizer, logger);
         
         // Test valid input
         var validResult = validationService.ValidateInput("How can I learn programming?");

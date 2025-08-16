@@ -1,4 +1,6 @@
+using FluentAI.Abstractions.Security;
 using FluentAI.ConsoleApp.Services;
+using Microsoft.Extensions.Logging;
 
 namespace FluentAI.ConsoleApp.Tests;
 
@@ -13,7 +15,12 @@ public static class InteractiveChatDemo
         
         var conversationManager = new ConversationManager();
         var sessionManager = new ChatSessionManager();
-        var validationService = new InputValidationService();
+        
+        // Create validation service with dependencies for demo
+        var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        var logger = loggerFactory.CreateLogger<InputValidationService>();
+        var inputSanitizer = new DefaultInputSanitizer(loggerFactory.CreateLogger<DefaultInputSanitizer>());
+        var validationService = new InputValidationService(inputSanitizer, logger);
         
         // Simulate the welcome screen
         Console.WriteLine("FluentAI.NET Advanced AI Assistant");

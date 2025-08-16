@@ -289,13 +289,15 @@ public class ConversationManager : IConversationManager
 
 ### Safety Features
 
-The `InputValidationService` provides comprehensive safety:
+The application now uses `fluentai-dotnet`'s advanced AI safety and risk management implementations for comprehensive security:
 
 ```csharp
 public ValidationResult ValidateInput(string input)
 {
-    // Check for risky content, excessive length, etc.
-    if (ContainsRiskyContent(input))
+    // Uses fluentai-dotnet's advanced risk assessment
+    var riskAssessment = _inputSanitizer.AssessRisk(input);
+    
+    if (riskAssessment.ShouldBlock)
         return new ValidationResult(false, "Content cannot be processed...");
         
     // Check for vague inputs needing clarification
@@ -304,9 +306,15 @@ public ValidationResult ValidateInput(string input)
 }
 ```
 
+**Key Security Features from fluentai-dotnet:**
+- **Advanced Prompt Injection Detection**: Sophisticated regex patterns to detect manipulation attempts
+- **Risk Assessment**: Multi-level risk scoring (None, Low, Medium, High, Critical)
+- **Content Sanitization**: Intelligent sanitization that escapes suspicious tokens
+- **Comprehensive Logging**: Detailed security event logging for monitoring
+
 ### Service Configuration
 
-The `Program.cs` registers all AI assistant services:
+The `Program.cs` registers all AI assistant services including fluentai-dotnet security:
 
 ```csharp
 private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
@@ -318,6 +326,9 @@ private static void ConfigureServices(IServiceCollection services, IConfiguratio
     // AI assistant services
     services.AddSingleton<IConversationManager, ConversationManager>();
     services.AddSingleton<IChatSessionManager, ChatSessionManager>();
+    
+    // fluentai-dotnet security services
+    services.AddSingleton<IInputSanitizer, DefaultInputSanitizer>();
     services.AddSingleton<IInputValidationService, InputValidationService>();
     services.AddSingleton<IInteractiveChatService, InteractiveChatService>();
     
@@ -370,9 +381,12 @@ The application will:
 
 ## Security Considerations
 
-- **Input Validation**: Comprehensive validation and sanitization of user inputs
-- **Content Filtering**: Prevents processing of harmful or inappropriate content
-- **Prompt Injection Protection**: Guards against malicious prompt manipulation attempts
+- **Advanced Input Validation**: Uses `fluentai-dotnet`'s sophisticated security implementations
+- **Prompt Injection Protection**: Advanced pattern matching to detect and prevent malicious prompt manipulation
+- **Multi-Level Risk Assessment**: Content is assessed on a scale from None to Critical risk levels
+- **Intelligent Content Filtering**: Prevents processing of harmful or inappropriate content with detailed concern reporting
+- **Content Sanitization**: Smart sanitization that escapes suspicious tokens while preserving legitimate content
+- **Comprehensive Security Logging**: All high-risk content attempts are logged for security monitoring
 - **API Key Protection**: Keys are never logged in full (only first 10 characters shown)
 - **User Secrets**: Recommended for development to keep API keys out of source control
 - **Environment Variables**: Suitable for production deployment scenarios

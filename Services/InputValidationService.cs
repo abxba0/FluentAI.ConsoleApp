@@ -1,4 +1,6 @@
 using System.Text.RegularExpressions;
+using FluentAI.Abstractions.Security;
+using Microsoft.Extensions.Logging;
 
 namespace FluentAI.ConsoleApp.Services;
 
@@ -16,19 +18,20 @@ public record ValidationResult(
     bool NeedsClarification = false,
     string? ClarificationPrompt = null);
 
+/// <summary>
+/// Input validation service that uses fluentai-dotnet's security implementations.
+/// Acts as an adapter between IInputValidationService and IInputSanitizer.
+/// </summary>
 public class InputValidationService : IInputValidationService
 {
-    private static readonly string[] RiskyKeywords = 
+    private readonly IInputSanitizer _inputSanitizer;
+    private readonly ILogger<InputValidationService> _logger;
+
+    public InputValidationService(IInputSanitizer inputSanitizer, ILogger<InputValidationService> logger)
     {
-        "hack", "exploit", "malware", "virus", "illegal", "harmful", "dangerous",
-        "suicide", "self-harm", "violence", "bomb", "weapon", "drug", "abuse"
-    };
-    
-    private static readonly string[] ProfanityWords = 
-    {
-        // Add common profanity words here - keeping minimal for demo
-        "damn", "hell"
-    };
+        _inputSanitizer = inputSanitizer ?? throw new ArgumentNullException(nameof(inputSanitizer));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
 
     public ValidationResult ValidateInput(string input)
     {
@@ -42,9 +45,18 @@ public class InputValidationService : IInputValidationService
             return new ValidationResult(false, "Input is too long. Please keep messages under 4000 characters.");
         }
 
-        // Check for risky content
-        if (ContainsRiskyContent(input))
+        // Use fluentai-dotnet's advanced risk assessment
+        var riskAssessment = _inputSanitizer.AssessRisk(input);
+        
+        if (riskAssessment.ShouldBlock)
         {
+            var concernDetails = riskAssessment.DetectedConcerns.Any() 
+                ? $" Detected concerns: {string.Join(", ", riskAssessment.DetectedConcerns)}"
+                : "";
+            
+            _logger.LogWarning("High-risk content blocked. Risk level: {RiskLevel}{Concerns}", 
+                riskAssessment.RiskLevel, concernDetails);
+                
             return new ValidationResult(false, 
                 "Your message contains content that cannot be processed. Please rephrase your request in a safe and appropriate manner.");
         }
@@ -64,45 +76,14 @@ public class InputValidationService : IInputValidationService
         if (string.IsNullOrWhiteSpace(input))
             return string.Empty;
 
-        // Remove excessive whitespace
-        input = Regex.Replace(input, @"\s+", " ").Trim();
-        
-        // Remove potential code injection patterns
-        input = Regex.Replace(input, @"<script.*?</script>", "", RegexOptions.IgnoreCase);
-        input = Regex.Replace(input, @"javascript:", "", RegexOptions.IgnoreCase);
-        
-        // Limit consecutive special characters
-        input = Regex.Replace(input, @"[!@#$%^&*()]{3,}", "");
-        
-        return input;
+        // Use fluentai-dotnet's advanced sanitization
+        return _inputSanitizer.SanitizeContent(input);
     }
 
     public bool ContainsRiskyContent(string input)
     {
-        var lowerInput = input.ToLowerInvariant();
-        
-        // Check for risky keywords
-        if (RiskyKeywords.Any(keyword => lowerInput.Contains(keyword)))
-        {
-            return true;
-        }
-        
-        // Check for excessive profanity
-        var profanityCount = ProfanityWords.Count(word => lowerInput.Contains(word));
-        if (profanityCount > 2) // Allow some flexibility
-        {
-            return true;
-        }
-        
-        // Check for potential prompt injection
-        if (lowerInput.Contains("ignore previous instructions") || 
-            lowerInput.Contains("forget your role") ||
-            lowerInput.Contains("act as if you are"))
-        {
-            return true;
-        }
-        
-        return false;
+        // Use fluentai-dotnet's advanced safety checking
+        return !_inputSanitizer.IsContentSafe(input);
     }
 
     public string GetClarificationPrompt(string input)
