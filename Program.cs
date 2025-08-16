@@ -23,6 +23,12 @@ class Program
                 case "test-legacy":
                     BackwardCompatibilityTest.TestLegacyConfiguration();
                     return;
+                case "test-features":
+                    AiAssistantFeaturesTest.RunAllTests();
+                    return;
+                case "demo":
+                    InteractiveChatDemo.RunDemo();
+                    return;
             }
         }
 
@@ -66,6 +72,12 @@ class Program
         // Add custom services
         services.AddSingleton<IApiKeyConfigurationService, ApiKeyConfigurationService>();
         services.AddSingleton<IApplicationService, ApplicationService>();
+        
+        // Add new AI assistant services
+        services.AddSingleton<IConversationManager, ConversationManager>();
+        services.AddSingleton<IChatSessionManager, ChatSessionManager>();
+        services.AddSingleton<IInputValidationService, InputValidationService>();
+        services.AddSingleton<IInteractiveChatService, InteractiveChatService>();
         
         // Add FluentAI services using configuration
         var configService = new ApiKeyConfigurationService(configuration);
