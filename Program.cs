@@ -26,6 +26,9 @@ class Program
                 case "test-features":
                     AiAssistantFeaturesTest.RunAllTests();
                     return;
+                case "demo":
+                    InteractiveChatDemo.RunDemo();
+                    return;
             }
         }
 
